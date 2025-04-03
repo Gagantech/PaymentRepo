@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razorpay Payment Integration</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+
+    <h1>Welcome to Payment Gateway</h1>
+
+    <!-- Payment Button -->
+    <button id="payButton">Pay Now</button>
+
+    <script>
+        document.getElementById("payButton").onclick = function() {
+            // Prepare Razorpay Payment Data
+            var options = {
+                "key": "YOUR_RAZORPAY_KEY_ID", // Your Razorpay key id
+                "amount": 50000, // Amount in paise (e.g., 50000 = 500 INR)
+                "currency": "INR",
+                "name": "Your Business Name",
+                "description": "Test Transaction",
+                "image": "https://example.com/your-logo.png",
+                "order_id": "", // This will be set dynamically after order creation
+                "handler": function (response) {
+                    alert("Payment Successful: " + response.razorpay_payment_id);
+                },
+                "prefill": {
+                    "name": "Customer Name",
+                    "email": "customer@example.com",
+                    "contact": "1234567890"
+                },
+                "notes": {
+                    "address": "Payment for goods"
+                },
+                "theme": {
+                    "color": "#F37254"
+                }
+            };
+
+            // Create an Order through the backend to get the order_id dynamically
+            fetch('/create_order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amount: options.amount,
+                    currency: options.currency,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                options.order_id = data.id; // Set the order ID dynamically
+                var rzp1 = new Razorpay(options);
+                rzp1.open();
+            })
+            .catch(error => console.error('Error creating order:', error));
+        };
+    </script>
+
+</body>
+</html>
