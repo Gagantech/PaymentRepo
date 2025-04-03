@@ -17,14 +17,14 @@
         document.getElementById("payButton").onclick = function() {
             // Prepare Razorpay Payment Data
             var options = {
-                "key": "rzp_test_H30R2MC6bNQ3Lj", // Your Razorpay key id
-                "amount": 50000, // Amount in paise (e.g., 50000 = 500 INR)
+                "key": "rzp_test_H30R2MC6bNQ3Lj",  // Your Razorpay key id
+                "amount": 100,  // Amount in paise (e.g., 100 = 1 INR)
                 "currency": "INR",
                 "name": "EdTech",
                 "description": "Test Transaction",
                 "image": "https://example.com/your-logo.png",
-                "order_id": "", // This will be set dynamically after order creation
-                "handler": function (response) {
+                "order_id": "",  // This will be set dynamically after order creation
+                "handler": function(response) {
                     alert("Payment Successful: " + response.razorpay_payment_id);
                 },
                 "prefill": {
@@ -40,8 +40,8 @@
                 }
             };
 
-            // Create an Order through the backend to get the order_id dynamically
-            fetch('/create_order', {
+            // Create an order through the backend to get the order_id dynamically
+            fetch('http://localhost:5000/create_order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -53,9 +53,9 @@
             })
             .then(response => response.json())
             .then(data => {
-                options.order_id = data.id; // Set the order ID dynamically
+                options.order_id = data.id;  // Set the order ID dynamically
                 var rzp1 = new Razorpay(options);
-                rzp1.open();
+                rzp1.open();  // This opens the Razorpay payment page
             })
             .catch(error => console.error('Error creating order:', error));
         };
