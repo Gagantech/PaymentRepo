@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <h1>Welcome to Payment Gateway</h1>
+    <h1>Welcome to Gagans Payment Gateway</h1>
 
     <!-- Payment Button -->
     <button id="payButton">Pay Now</button>
@@ -18,14 +18,15 @@
             // Prepare Razorpay Payment Data
             var options = {
                 "key": "rzp_test_H30R2MC6bNQ3Lj",  // Your Razorpay key id
-                "amount": 100,  // Amount in paise (e.g., 100 = 1 INR)
+                "amount": 50000,  // Amount in paise (e.g., 100 = 1 INR)
                 "currency": "INR",
                 "name": "EdTech",
                 "description": "Test Transaction",
                 "image": "https://example.com/your-logo.png",
                 "order_id": "",  // This will be set dynamically after order creation
                 "handler": function(response) {
-                    alert("Payment Successful: " + response.razorpay_payment_id);
+                    // Verify the payment before showing success
+                    verifyPayment(response);
                 },
                 "prefill": {
                     "name": "Customer Name",
@@ -59,6 +60,33 @@
             })
             .catch(error => console.error('Error creating order:', error));
         };
+
+        // Function to verify payment using Razorpay signature
+        function verifyPayment(response) {
+            fetch('http://localhost:5000/verify_payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    payment_id: response.razorpay_payment_id,
+                    order_id: response.razorpay_order_id,
+                    signature: response.razorpay_signature
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Payment Verified Successfully!');
+                } else {
+                    alert('Payment Verification Failed');
+                }
+            })
+            .catch(error => {
+                alert('Error in payment verification');
+                console.error('Payment verification failed:', error);
+            });
+        }
     </script>
 
 </body>

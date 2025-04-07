@@ -4,8 +4,8 @@ const express = require('express');
 const Razorpay = require('razorpay');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const crypto = require('crypto');
 
-// Initialize the express app
 const app = express();
 
 // Enable CORS to allow frontend requests
@@ -25,7 +25,7 @@ app.post('/create_order', (req, res) => {
   const { amount, currency } = req.body;
 
   const options = {
-    amount: amount,  // amount in paise (e.g., 50000 = 500 INR)
+    amount: amount,  // amount in paise (e.g., 100 = 1 INR)
     currency: currency,
     receipt: 'receipt#1',
   };
@@ -36,6 +36,23 @@ app.post('/create_order', (req, res) => {
     }
     res.send(order);  // Send the created order ID to frontend
   });
+});
+
+// Route to verify payment signature
+app.post('/verify_payment', (req, res) => {
+  const { payment_id, order_id, signature } = req.body;
+
+  const hmac = crypto.createHmac('sha256', 'gGQ3qI4j89cQu0IGR4VTaZFS');
+  hmac.update(order_id + '|' + payment_id);
+  const generated_signature = hmac.digest('hex');
+
+  if (generated_signature === signature) {
+    // Payment is valid
+    res.send({ success: true });
+  } else {
+    // Payment failed
+    res.send({ success: false });
+  }
 });
 
 // Start the server on port 5000
